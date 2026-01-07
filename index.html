@@ -1,22 +1,186 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Website của Nhung</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 { color: #333; }
-        p { font-size: 18px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Dino 💍</title>
+
+<style>
+body {
+  margin: 0;
+  background: #fdeff4;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#game {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  background: linear-gradient(#fdeff4, #fff);
+  border-bottom: 3px solid #e8a2b0;
+  overflow: hidden;
+}
+
+#player {
+  position: absolute;
+  left: 30px;
+  bottom: 14px;
+  font-size: 42px;
+  transition: bottom 0.25s;
+}
+
+.obstacle {
+  position: absolute;
+  right: -40px;
+  bottom: 14px;
+  font-size: 30px;
+}
+
+#popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#box {
+  background: #fff;
+  padding: 22px;
+  border-radius: 16px;
+  max-width: 320px;
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background: #e85d75;
+  color: white;
+  font-size: 16px;
+}
+</style>
 </head>
+
 <body>
-    <h1>Xin chào 👋</h1>
-    <p>Đây là website miễn phí đầu tiên của tôi.</p>
-    <p>Host bằng GitHub Pages 🚀</p>
+
+<h2>💑 Love Dino</h2>
+
+<div id="game">
+  <div id="player">👰🤵</div>
+</div>
+
+<p>Tap / Click để nhảy ❤️</p>
+
+<div id="popup">
+  <div id="box">
+    <h3 id="popupText"></h3>
+    <button onclick="resume()">Tiếp tục ❤️</button>
+  </div>
+</div>
+
+<script>
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+const popup = document.getElementById("popup");
+const popupText = document.getElementById("popupText");
+
+const milestones = [
+  "2019 – Lần đầu gặp nhau ❤️",
+  "2020 – Buổi hẹn đầu tiên ☕",
+  "2023 – Cầu hôn 💍",
+  "2026 – Về chung một nhà 🎉"
+];
+
+let jumping = false;
+let paused = false;
+let passed = 0;
+let milestoneIndex = 0;
+
+/* JUMP – CAO & LÂU HƠN */
+function jump() {
+  if (jumping || paused) return;
+  jumping = true;
+  player.style.bottom = "140px";
+
+  setTimeout(() => {
+    player.style.bottom = "14px";
+    jumping = false;
+  }, 600);
+}
+
+document.body.addEventListener("click", jump);
+document.body.addEventListener("touchstart", jump);
+
+/* OBSTACLE */
+function createObstacle() {
+  if (paused) return;
+
+  const obs = document.createElement("div");
+  obs.className = "obstacle";
+  obs.innerText = ["🌸","💌","🍀","🌷"][Math.floor(Math.random()*4)];
+  game.appendChild(obs);
+
+  let x = -40;
+
+  const move = setInterval(() => {
+    if (paused) return;
+
+    x += 1.5; // CHẬM HƠN
+    obs.style.right = x + "px";
+
+    const obsLeft = obs.getBoundingClientRect().left;
+    const playerLeft = player.getBoundingClientRect().left;
+    const playerBottom = parseInt(getComputedStyle(player).bottom);
+
+    if (
+      obsLeft < playerLeft + 40 &&
+      obsLeft > playerLeft &&
+      playerBottom < 50
+    ) {
+      gameOver();
+      clearInterval(move);
+      obs.remove();
+    }
+
+    if (obsLeft < playerLeft - 10) {
+      passed++;
+      clearInterval(move);
+      obs.remove();
+
+      if (passed % 2 === 0) showMilestone();
+    }
+  }, 16);
+}
+
+/* POPUPS */
+function gameOver() {
+  paused = true;
+  popupText.innerText = "💔 Game Over\nChơi lại nhé!";
+  popup.style.display = "flex";
+  passed = 0;
+  milestoneIndex = 0;
+}
+
+function showMilestone() {
+  paused = true;
+  popupText.innerText =
+    milestones[milestoneIndex] || "Forever Together 💕";
+  popup.style.display = "flex";
+}
+
+function resume() {
+  popup.style.display = "none";
+  paused = false;
+  milestoneIndex++;
+}
+
+/* SPAWN XA HƠN */
+setInterval(createObstacle, 2600);
+</script>
+
 </body>
 </html>
